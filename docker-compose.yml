@@ -1,0 +1,21 @@
+version: '3.8'
+# 使用するDockerEngineリソースに適応するバージョンを指定する。
+
+services:
+  apex_bot:
+    container_name: bot
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    tty: true
+    volumes:
+      - .:/code/
+      - ${PIP_CACHE_DIR_BOT:-cache-bot}:/root/.cache
+
+
+volumes:
+  cache-bot:
