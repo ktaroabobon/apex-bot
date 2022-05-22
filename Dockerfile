@@ -7,10 +7,10 @@ ENV APP_PATH=/code \
 
 WORKDIR $APP_PATH
 
+# コンテナのセットアップ
 RUN apt-get update && \
     apt-get upgrade -y && \
     pip install poetry
-# コンテナのセットアップ
 
 COPY . .
 
