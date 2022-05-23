@@ -1,5 +1,7 @@
 name: maprotation-tweet
 
+on: [ push ]
+
 env:
   PIP_CACHE_DIR: /tmp/cache/pip_apex_maprotation
 
