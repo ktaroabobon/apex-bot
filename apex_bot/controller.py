@@ -1,4 +1,5 @@
 import datetime
+from pathlib import Path
 
 from dateutil import tz
 
@@ -20,9 +21,10 @@ MAP_NAME_DICT = {
 }
 
 TZ_INFO = "Asia/Tokyo"
+MEDIA_DIR = Path().resolve() / "media"
 
 
-def get_tweet_content(map_info: dict, mode: str = "battle_royale"):
+def get_tweet_content(map_info: dict, mode: str = "battle_royale") -> dict:
     """マップ情報からツイート内容を取得
 
     Args:
@@ -30,7 +32,7 @@ def get_tweet_content(map_info: dict, mode: str = "battle_royale"):
         mode(str): マップモード
 
     Returns:
-        str: ツイート内容
+        dict: ツイート内容(内容、画像url)
     """
     target_data = map_info[mode]
     start = target_data['current']['start']
@@ -41,7 +43,7 @@ def get_tweet_content(map_info: dict, mode: str = "battle_royale"):
         'start': datetime.datetime.fromtimestamp(start).astimezone(jst),
         'end': datetime.datetime.fromtimestamp(end).astimezone(jst),
         'map': MAP_NAME_DICT[(target_data['current']['map']).lower()],
-        'asset': target_data['current']['asset'],
+        'asset': MEDIA_DIR / target_data['current']['asset'].split('/')[-1],
         'next_map': MAP_NAME_DICT[(target_data['next']['map']).lower()],
     }
 
@@ -56,13 +58,20 @@ def get_tweet_content(map_info: dict, mode: str = "battle_royale"):
 {info['next_map']}（{str(info['start'].hour).zfill(2)}:{str(info['start'].minute).zfill(2)}～{str(info['end'].hour).zfill(2)}:{str(info['end'].minute).zfill(2)}）   
     """
 
-    return context
+    return {'text': context, 'media': info['asset']}
 
 
 def bot():
+    """Twitterのbotを動かす関数
+    """
     map_info = get_info()
     content = get_tweet_content(map_info)
-    tweet(content)
+    content_text = content['text']
+    media_url = content['media']
+    if media_url.exists():
+        tweet(content_text, str(media_url))
+    else:
+        tweet(content_text)
 
 
 if __name__ == '__main__':
