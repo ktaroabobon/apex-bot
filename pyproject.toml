@@ -8,6 +8,7 @@ authors = ["keitarowatanabe <ktaroabobon@gmail.com>"]
 python = "^3.8"
 requests = "^2.27.1"
 tweepy = "^4.9.0"
+python-dateutil = "^2.8.2"
 
 [tool.poetry.dev-dependencies]
 
