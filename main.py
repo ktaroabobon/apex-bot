@@ -1,10 +1,12 @@
+import json
 import os
+import pathlib
 import requests
 
 
 def main() -> None:
-    api_key = os.environ["APEX_API_KEY"]
-    print(f"API KEY: {api_key}")
+    api_key = os.environ["ALS_API_KEY"]
+    print(f"ALS API KEY: {api_key}")
 
     mode = "maprotation"
     url = f"https://api.mozambiquehe.re/{mode}"
@@ -20,6 +22,11 @@ def main() -> None:
     res = requests.get(url, params=params)
 
     print(res.text)
+
+    path = pathlib.Path().resolve() / f"data.json"
+
+    with path.open('w') as f:
+        json.dump(json.loads(res.text), f, indent=4, ensure_ascii=False)
 
 
 if __name__ == '__main__':
