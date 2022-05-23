@@ -1,0 +1,57 @@
+name: maprotation-tweet
+
+env:
+  PIP_CACHE_DIR: /tmp/cache/pip_apex_maprotation
+
+  ALS_API_KEY: ${{secrets.ALS_API_KEY}}
+  TWITTER_API_KEY: ${{secrets.TWITTER_API_KEY}}
+  TWITTER_API_KEY_SECRET: ${{secrets.TWITTER_API_KEY_SECRET}}
+  TWITTER_ACCESS_TOKEN: ${{secrets.TWITTER_ACCESS_TOKEN}}
+  TWITTER_ACCESS_TOKEN_SECRET: ${{secrets.TWITTER_ACCESS_TOKEN_SECRET}}
+  TWITTER_ACCOUNT_ID: ${{secrets.TWITTER_ACCOUNT_ID}}
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.PIP_CACHE_DIR }}
+          key: ${{ runner.os }}-python-cache-${{ hashFiles('./pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-python-cache-
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Build the docker-compose
+        run: docker-compose up -d apex-bot
+
+      - name: apex-bot install modules
+        run: |
+          docker exec bot /bin/bash -c "poetry install"
+          docker exec bot /bin/bash -c "chmod -R 755 /root/.cache/"
+
+      - name: Make base files
+        run: docker exec aoz_wrapper poetry run sphinx-apidoc -F -H aoz-wrapper -o docs aozwrapper
+
+      - name: Copy conf file
+        run: docker exec aoz_wrapper /bin/bash -c "cp docs.conf.dev docs/conf.py"
+
+      - name: Write package-version in conf
+        run: docker exec aoz_wrapper /bin/bash -c "echo version = \'${{ steps.get_version.outputs.VERSION }}\' >> docs/conf.py"
+
+      - name: Write package-release in conf
+        run: docker exec aoz_wrapper /bin/bash -c "echo release = \'${{ steps.get_version.outputs.VERSION }}\' >> docs/conf.py"
+
+      - name: Build docs
+        run: docker exec aoz_wrapper poetry run sphinx-build docs docs/_build
+
+      - name: Deploy docs for s3
+        run: aws s3 cp ./docs/_build s3://$BUCKET_NAME --recursive
+      # htmlファイルのみフォルダごとアップロード

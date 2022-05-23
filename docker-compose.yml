@@ -2,7 +2,7 @@ version: '3.8'
 # 使用するDockerEngineリソースに適応するバージョンを指定する。
 
 services:
-  apex_bot:
+  apex-bot:
     container_name: bot
     build:
       context: .
