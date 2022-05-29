@@ -39,17 +39,5 @@ jobs:
           docker exec bot /bin/bash -c "poetry install"
           docker exec bot /bin/bash -c "chmod -R 755 /root/.cache/"
 
-#      - name: Make base files
-#        run: docker exec aoz_wrapper poetry run sphinx-apidoc -F -H aoz-wrapper -o docs aozwrapper
-#
-#      - name: Copy conf file
-#        run: docker exec aoz_wrapper /bin/bash -c "cp docs.conf.dev docs/conf.py"
-#
-#      - name: Write package-version in conf
-#        run: docker exec aoz_wrapper /bin/bash -c "echo version = \'${{ steps.get_version.outputs.VERSION }}\' >> docs/conf.py"
-#
-#      - name: Write package-release in conf
-#        run: docker exec aoz_wrapper /bin/bash -c "echo release = \'${{ steps.get_version.outputs.VERSION }}\' >> docs/conf.py"
-
       - name: Deploy Tweet
         run: docker exec bot poetry run python main.py
