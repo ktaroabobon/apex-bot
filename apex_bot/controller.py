@@ -63,7 +63,7 @@ def get_tweet_content(map_info: dict, mode: str = "battle_royale") -> dict:
     
 【次回のマップ】
 {info['next_map']}（{str(info['next_start'].hour).zfill(2)}:{str(info['next_start'].minute).zfill(2)}～{str(info['next_end'].hour).zfill(2)}:{str(info['next_end'].minute).zfill(2)}） 
-#Apex #Maprotation
+#Apex #Maprotation #{mode}
     """
 
     return {'text': context, 'media': info['asset']}
